@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Dashboard</h2>
+<a class="btn btn-success mb-3" href="{{ url_for('create_policy') }}">Create New Policy</a>
+<a class="btn btn-secondary mb-3" href="{{ url_for('risk_register') }}">Risk Register</a>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>ISO Section</th>
+            <th>NIST Category</th>
+            <th>Created By</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for policy in policies %}
+        <tr>
+            <td>{{ policy.title }}</td>
+            <td>{{ policy.iso_section }}</td>
+            <td>{{ policy.nist_category }}</td>
+            <td>{{ policy.created_by }}</td>
+            <td>{{ policy.timestamp.strftime('%Y-%m-%d') }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

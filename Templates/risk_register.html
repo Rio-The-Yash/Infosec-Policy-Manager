@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Risk Register</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">{{ form.title.label }} {{ form.title(class="form-control") }}</div>
+    <div class="mb-3">{{ form.category.label }} {{ form.category(class="form-control") }}</div>
+    <div class="mb-3">{{ form.impact.label }} {{ form.impact(class="form-control") }}</div>
+    <div class="mb-3">{{ form.likelihood.label }} {{ form.likelihood(class="form-control") }}</div>
+    <div class="mb-3">{{ form.mitigation.label }} {{ form.mitigation(class="form-control", rows=3) }}</div>
+    <div class="mb-3">{{ form.status.label }} {{ form.status(class="form-control") }}</div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+<hr>
+<h4>Existing Risks</h4>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Title</th><th>Category</th><th>Impact</th><th>Likelihood</th><th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for risk in risks %}
+        <tr>
+            <td>{{ risk.title }}</td>
+            <td>{{ risk.category }}</td>
+            <td>{{ risk.impact }}</td>
+            <td>{{ risk.likelihood }}</td>
+            <td>{{ risk.status }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Create Policy</h2>
+<form method="POST">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.title.label(class="form-label") }}
+        {{ form.title(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.content.label(class="form-label") }}
+        {{ form.content(class="form-control", rows=5) }}
+    </div>
+    <div class="mb-3">
+        {{ form.iso_section.label(class="form-label") }}
+        {{ form.iso_section(class="form-control") }}
+    </div>
+    <div class="mb-3">
+        {{ form.nist_category.label(class="form-label") }}
+        {{ form.nist_category(class="form-control") }}
+    </div>
+    {{ form.submit(class="btn btn-primary") }}
+</form>
+{% endblock %}
