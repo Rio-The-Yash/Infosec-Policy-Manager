@@ -9,8 +9,9 @@ from forms import LoginForm, PolicyForm, RiskForm, RegistrationForm
 from models import User, Policy, Risk, AuditLog
 
 # Initialize app
-app = Flask(__name__)
+app = Flask(__name__, template_folder="Templates")
 app.config.from_object(Config)
+
 
 # Initialize extensions
 db.init_app(app)
@@ -179,3 +180,4 @@ def create_admin():
 # --- Run the app ---
 if __name__ == '__main__':
     app.run(debug=True)
+
