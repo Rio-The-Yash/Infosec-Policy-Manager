@@ -57,7 +57,7 @@ A lightweight web-based application designed to create, manage, and track ISO 27
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/infosec-policy-manager.git
+   git clone https://github.com/Rio-The-Yash/infosec-policy-manager.git
    cd infosec-policy-manager
    ```
 
