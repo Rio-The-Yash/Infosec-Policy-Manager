@@ -1,24 +1,44 @@
 {% extends "base.html" %}
+
 {% block content %}
-<h2>Create Policy</h2>
-<form method="POST">
+<div class="container mt-4">
+  <h2>Create New Policy</h2>
+  <form method="POST" action="">
     {{ form.hidden_tag() }}
-    <div class="mb-3">
-        {{ form.title.label(class="form-label") }}
-        {{ form.title(class="form-control") }}
+
+    <div class="form-group mb-3">
+      {{ form.title.label(class="form-label") }}
+      {{ form.title(class="form-control", placeholder="Enter policy title") }}
+      {% for error in form.title.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
     </div>
-    <div class="mb-3">
-        {{ form.content.label(class="form-label") }}
-        {{ form.content(class="form-control", rows=5) }}
+
+    <div class="form-group mb-3">
+      {{ form.content.label(class="form-label") }}
+      {{ form.content(class="form-control", rows=6, placeholder="Write the policy content here...") }}
+      {% for error in form.content.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
     </div>
-    <div class="mb-3">
-        {{ form.iso_section.label(class="form-label") }}
-        {{ form.iso_section(class="form-control") }}
+
+    <div class="form-group mb-3">
+      {{ form.iso_section.label(class="form-label") }}
+      {{ form.iso_section(class="form-select") }}
+      {% for error in form.iso_section.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
     </div>
-    <div class="mb-3">
-        {{ form.nist_category.label(class="form-label") }}
-        {{ form.nist_category(class="form-control") }}
+
+    <div class="form-group mb-4">
+      {{ form.nist_category.label(class="form-label") }}
+      {{ form.nist_category(class="form-select") }}
+      {% for error in form.nist_category.errors %}
+        <div class="text-danger">{{ error }}</div>
+      {% endfor %}
     </div>
-    {{ form.submit(class="btn btn-primary") }}
-</form>
+
+    <button type="submit" class="btn btn-primary">{{ form.submit.label.text }}</button>
+  </form>
+</div>
 {% endblock %}
