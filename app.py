@@ -1,13 +1,12 @@
-from flask import Flask, render_template, redirect, url_for, flash, request
-from flask_sqlalchemy import SQLAlchemy
+from flask import Flask, render_template, redirect, url_for, flash, request, abort
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
-
-from config import Config
-from forms import LoginForm, PolicyForm, RiskForm
-from models import db, User, Policy, Risk, AuditLog
-
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import datetime
+
+from config import Config
+from extensions import db
+from forms import LoginForm, PolicyForm, RiskForm, RegistrationForm
+from models import User, Policy, Risk, AuditLog
 
 # Initialize app
 app = Flask(__name__)
@@ -23,7 +22,7 @@ login_manager.login_view = 'login'
 with app.app_context():
     db.create_all()
 
-# User loader
+# User loader for Flask-Login
 @login_manager.user_loader
 def load_user(user_id):
     return User.query.get(int(user_id))
@@ -70,15 +69,17 @@ def create_policy():
             content=form.content.data,
             iso_section=form.iso_section.data,
             nist_category=form.nist_category.data,
-            created_by=current_user.username
+            created_by=current_user.username,
+            user_id=current_user.id
         )
         db.session.add(policy)
 
         log = AuditLog(
             action=f"Created policy: {form.title.data}",
-            user=current_user.username
+            user=current_user  # Relationship, not string
         )
         db.session.add(log)
+
         db.session.commit()
         flash('Policy created successfully!')
         return redirect(url_for('dashboard'))
@@ -101,22 +102,76 @@ def risk_register():
 
         log = AuditLog(
             action=f"Added risk: {form.title.data}",
-            user=current_user.username
+            user=current_user
         )
         db.session.add(log)
+
         db.session.commit()
         flash('Risk added successfully!')
         return redirect(url_for('risk_register'))
-    
+
     risks = Risk.query.order_by(Risk.created_at.desc()).all()
     return render_template('risk_register.html', form=form, risks=risks)
 
-# Optional route to initialize an admin user (you can run this once)
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        hashed_pw = generate_password_hash(form.password.data)
+        new_user = User(username=form.username.data, password=hashed_pw, role=form.role.data)
+        db.session.add(new_user)
+        db.session.commit()
+
+        log = AuditLog(
+            action=f"Registered new user: {form.username.data}",
+            user=new_user
+        )
+        db.session.add(log)
+        db.session.commit()
+
+        flash('Account created successfully! Please log in.')
+        return redirect(url_for('login'))
+    return render_template('register.html', form=form)
+
+@app.route('/audit_logs')
+@login_required
+def audit_logs():
+    if current_user.role != 'admin':
+        flash("Access denied.", "danger")
+        return redirect(url_for('index'))
+    logs = AuditLog.query.order_by(AuditLog.timestamp.desc()).all()
+    return render_template('audit_logs.html', logs=logs)
+
+@app.route('/delete_policy/<int:policy_id>', methods=['POST'])
+@login_required
+def delete_policy(policy_id):
+    policy = Policy.query.get_or_404(policy_id)
+
+    # Restrict deletion to owner or admin
+    if policy.user_id != current_user.id and current_user.role != 'admin':
+        abort(403)
+
+    db.session.delete(policy)
+
+    log = AuditLog(
+        action=f"Deleted policy: {policy.title}",
+        user=current_user
+    )
+    db.session.add(log)
+
+    db.session.commit()
+    flash('Policy has been deleted.', 'success')
+    return redirect(url_for('dashboard'))
+
 @app.route('/create_admin')
 def create_admin():
     if User.query.filter_by(username='admin').first():
         return 'Admin already exists.'
-    admin = User(username='admin', password=generate_password_hash('admin123'), role='admin')
+    admin = User(
+        username='admin',
+        password=generate_password_hash('admin123'),
+        role='admin'
+    )
     db.session.add(admin)
     db.session.commit()
     return 'Admin user created. Username: admin, Password: admin123'
